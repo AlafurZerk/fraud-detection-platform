@@ -8,7 +8,6 @@ object TransactionGenerator {
   // Пул из постоянных 50 юзеров системы
   private val users: Vector[String] = (1 to 50).map(i => s"user_$i").toVector
 
-  // Категории мерчантов
   private val regularCategories = Vector(
     "5411_groceries_supermarkets",
     "5812_restaurants",
@@ -20,7 +19,7 @@ object TransactionGenerator {
     "5999_misc_retail",
     "4814_telecom_services"
   )
-  // Категории мерчантов повышенного риска
+
   private val highRiskCategories = Vector(
     "6051_crypto_quasi_cash",
     "7995_betting_casino_gambling",
@@ -28,7 +27,7 @@ object TransactionGenerator {
     "5944_jewelry_watch_luxury",
     "6540_p2p_money_transfer"
   )
-  // Рф
+
   private val homeLocations = Vector(
     (55.7558, 37.6173),   // Москва
     (59.9343, 30.3351),   // Санкт-Петербург
@@ -36,7 +35,7 @@ object TransactionGenerator {
     (55.7961, 49.1064),   // Казань
     (55.0084, 82.9357)    // Новосибирск
   )
-  // Иностранные города
+
   private val foreignLocations = Vector(
     (40.7128, -74.0060),  // Нью-Йорк (США)
     (51.5074, -0.1278),   // Лондон (Великобритания)

@@ -19,3 +19,7 @@ docker/kafka_data/
 # Системные файлы ОС
 .DS_Store
 Thumbs.db
+
+checkpoints/
+streaming-spark/target/
+streaming-spark/.bsp/
