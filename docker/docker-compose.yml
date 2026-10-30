@@ -1,0 +1,62 @@
+
+services:
+
+  # PostgreSQL
+
+  postgres:
+    image: dockerhub.timeweb.cloud/library/postgres:15-alpine
+    container_name: fraud_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: fraud_detection
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Apache Kafka
+
+  kafka:
+    image: dockerhub.timeweb.cloud/confluentinc/cp-kafka:7.5.0
+    container_name: fraud_kafka
+    restart: unless-stopped
+    ports:
+      - "29092:29092"
+    environment:
+      # id нода в кластере
+      KAFKA_NODE_ID: 1
+      # Роли брокера и контроллера
+      KAFKA_PROCESS_ROLES: 'broker, controller'
+      # Адрес кворума контроллера
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      # Протоколы безопасности для слушателя
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      # Список интерфейсов, которые слушает Kafka внутри контейнера
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092'
+
+      # Адреса, которые кафка сообщает клиентам для подключения
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
+      # Интерфейс для контроллера
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+
+      # Фактор репликации для служебных топиков
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Уникальный id-кластера(base64-hash)
+      CLUSTER_ID: '4L622nShTZaJvthnTRP31w'
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+volumes:
+  postgres_data:
+  kafka_data:

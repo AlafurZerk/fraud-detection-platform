@@ -1,0 +1,21 @@
+# Скомпилированные файлы sbt и Scala
+**/target/
+project/project/
+.bsp/
+
+# Настройки IntelliJ IDEA
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+*.iml
+out/
+
+# Данные Docker и базы
+*.log
+docker/postgres_data/
+docker/kafka_data/
+
+# Системные файлы ОС
+.DS_Store
+Thumbs.db
