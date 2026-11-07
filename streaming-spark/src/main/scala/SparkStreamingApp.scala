@@ -1,4 +1,4 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
@@ -46,6 +46,7 @@ object SparkStreamingApp {
       .option("kafka.bootstrap.servers", "localhost:29092")
       .option("subscribe", "transaction.raw")
       .option("startingOffsets", "latest") // чтение только свежих транзакций
+      .option("failOnDataLoss", "false")
       .load()
 
     // Парсинг потока
@@ -103,6 +104,52 @@ object SparkStreamingApp {
       .format("console")
       .outputMode("append")
       .option("truncate", "false")
+      .start()
+
+    val postgresQuery = fraudAlerts.writeStream
+      .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
+        batchDF.foreachPartition { partition: Iterator[Row] =>
+          if (partition.hasNext) {
+            Class.forName("org.postgresql.Driver")
+            val conn = java.sql.DriverManager.getConnection(
+              "jdbc:postgresql://localhost:5435/fraud_detection",
+              "postgres",
+              "postgres_password"
+            )
+            try {
+              val sql =
+                """
+                  INSERT INTO fraud_alerts (
+                    transaction_id, user_id, amount, merchant_category, alert_type, event_time, detected_at
+                  ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                  ON CONFLICT (transaction_id) DO NOTHING
+                """.stripMargin
+              val stmt = conn.prepareStatement(sql)
+              try {
+                partition.foreach { row =>
+                  stmt.setString(1, row.getAs[String]("transactionId"))
+                  stmt.setString(2, row.getAs[String]("userId"))
+                  stmt.setBigDecimal(3, java.math.BigDecimal.valueOf(row.getAs[Double]("amount")))
+                  stmt.setString(4, row.getAs[String]("merchantCategory"))
+                  stmt.setString(5, row.getAs[String]("alert_type"))
+                  stmt.setTimestamp(6, row.getAs[java.sql.Timestamp]("event_time"))
+                  stmt.setTimestamp(7, row.getAs[java.sql.Timestamp]("detected_at"))
+                  stmt.addBatch()
+                }
+                stmt.executeBatch()
+                ()
+              } finally {
+                stmt.close()
+              }
+            } finally {
+              conn.close()
+            }
+          }
+          ()
+        }
+      }
+      .option("checkpointLocation", "checkpoints/postgres-alerts")
+      .outputMode("append")
       .start()
 
     spark.streams.awaitAnyTermination()

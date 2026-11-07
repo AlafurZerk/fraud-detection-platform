@@ -1,18 +1,13 @@
-name := "streaming-spark"
+ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.12"
 
-version := "0.1.0"
-
-scalaVersion := "2.13.12"
-
-val sparkVersion = "3.5.1"
-
-libraryDependencies ++= Seq(
-  // Ядро апачи спарк
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-
-  // Спарк sql и structured streaming
-  "org.apache.spark" %% "spark-sql" % sparkVersion,
-
-  // Официальный коннектор спарк и кафки
-  "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion
-)
+lazy val root = (project in file("."))
+  .settings(
+    name := "streaming-spark",
+    libraryDependencies ++= Seq(
+      "org.apache.spark" %% "spark-core" % "3.5.1",
+      "org.apache.spark" %% "spark-sql" % "3.5.1",
+      "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.5.1",
+      "org.postgresql" % "postgresql" % "42.7.2"
+    )
+  )
