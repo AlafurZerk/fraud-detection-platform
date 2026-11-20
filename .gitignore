@@ -23,3 +23,6 @@ Thumbs.db
 checkpoints/
 streaming-spark/target/
 streaming-spark/.bsp/
+
+# Airflow logs
+batch-airflow/logs/

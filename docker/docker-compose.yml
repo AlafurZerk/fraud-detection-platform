@@ -57,6 +57,66 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  # AirFlow
+
+  airflow-init:
+    image: dockerhub.timeweb.cloud/apache/airflow:2.8.1-python3.10
+    container_name: fraud_airflow_init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:
+        postgresql+psycopg2://postgres:postgres_password@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create --username airflow --password airflow --firstname Admin --lastname User --role Admin --email admin@example.com || true
+
+  # AirFlow Webserver
+
+  airflow-webserver:
+    image: dockerhub.timeweb.cloud/apache/airflow:2.8.1-python3.10
+    container_name: fraud_airflow_webserver
+    restart: unless-stopped
+    command: webserver
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres_password@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'secret_key_fraud_platform'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../batch-airflow/dags:/opt/airflow/dags
+      - ../batch-airflow/logs:/opt/airflow/logs
+      - ../batch-airflow/plugins:/opt/airflow/plugins
+
+  # AirFlow Scheduler
+
+  airflow-scheduler:
+    image: dockerhub.timeweb.cloud/apache/airflow:2.8.1-python3.10
+    container_name: fraud_airflow_scheduler
+    restart: unless-stopped
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres_password@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes:
+      - ../batch-airflow/dags:/opt/airflow/dags
+      - ../batch-airflow/logs:/opt/airflow/logs
+      - ../batch-airflow/plugins:/opt/airflow/plugins
+
 volumes:
   postgres_data:
   kafka_data:
