@@ -79,7 +79,10 @@ services:
   # AirFlow Webserver
 
   airflow-webserver:
-    image: dockerhub.timeweb.cloud/apache/airflow:2.8.1-python3.10
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fraud-airflow-custom:2.8.1
     container_name: fraud_airflow_webserver
     restart: unless-stopped
     command: webserver
@@ -97,11 +100,12 @@ services:
       - ../batch-airflow/dags:/opt/airflow/dags
       - ../batch-airflow/logs:/opt/airflow/logs
       - ../batch-airflow/plugins:/opt/airflow/plugins
+      - ../batch-analytics:/opt/airflow/batch-analytics
 
   # AirFlow Scheduler
 
   airflow-scheduler:
-    image: dockerhub.timeweb.cloud/apache/airflow:2.8.1-python3.10
+    image: fraud-airflow-custom:2.8.1
     container_name: fraud_airflow_scheduler
     restart: unless-stopped
     command: scheduler
@@ -116,6 +120,7 @@ services:
       - ../batch-airflow/dags:/opt/airflow/dags
       - ../batch-airflow/logs:/opt/airflow/logs
       - ../batch-airflow/plugins:/opt/airflow/plugins
+      - ../batch-analytics:/opt/airflow/batch-analytics
 
 volumes:
   postgres_data:
