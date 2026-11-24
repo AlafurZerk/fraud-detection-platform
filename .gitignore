@@ -4,10 +4,7 @@ project/project/
 .bsp/
 
 # Настройки IntelliJ IDEA
-.idea/*
-!.idea/misc.xml
-!.idea/modules.xml
-!.idea/vcs.xml
+.idea/
 *.iml
 out/
 
@@ -32,3 +29,4 @@ batch-airflow/logs/
 venv/
 __pycache__/
 *.pyc
+

@@ -7,6 +7,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-darkgreen.svg)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 Полнофункциональная enterprise-платформа обнаружения финансовых аномалий и мошеннических транзакций в реальном времени и батч-режиме, построенная на принципах **Lambda-архитектуры**.
 
