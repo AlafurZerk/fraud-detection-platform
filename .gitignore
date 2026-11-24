@@ -26,3 +26,9 @@ streaming-spark/.bsp/
 
 # Airflow logs
 batch-airflow/logs/
+
+# Python virtual environments & cache
+.venv/
+venv/
+__pycache__/
+*.pyc

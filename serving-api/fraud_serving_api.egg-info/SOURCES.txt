@@ -1,0 +1,6 @@
+pyproject.toml
+fraud_serving_api.egg-info/PKG-INFO
+fraud_serving_api.egg-info/SOURCES.txt
+fraud_serving_api.egg-info/dependency_links.txt
+fraud_serving_api.egg-info/requires.txt
+fraud_serving_api.egg-info/top_level.txt
